@@ -1,0 +1,118 @@
+<Window x:Class="DeskFolders.Views.TrayMenuWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="278"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        UseLayoutRounding="True"
+        Topmost="True">
+    <Window.Resources>
+        <Style x:Key="TrayItemBtn" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#F2F2F7"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#24FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#34FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="MenuCard"
+            Margin="16"
+            Background="#F419191E"
+            BorderBrush="#36FFFFFF"
+            BorderThickness="1"
+            CornerRadius="14"
+            Padding="6">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="14" ShadowDepth="3" Opacity="0.46" Color="Black"/>
+        </Border.Effect>
+
+        <StackPanel>
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnSettingsClick">
+                <DockPanel>
+                    <TextBlock Text="⚙" Foreground="#5AAFFF" FontSize="13" Margin="0,0,9,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Настройки и папки..." FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Button>
+
+            <Border Height="1" Background="#1CFFFFFF" Margin="8,4"/>
+
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnAddFolderClick">
+                <DockPanel>
+                    <TextBlock Text="+" Foreground="#98989F" FontSize="14" FontWeight="Bold" Margin="2,0,10,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Добавить папку" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Button>
+
+                        <Button Style="{StaticResource TrayItemBtn}" Click="OnOrganizeClick">
+                <TextBlock Text="✨  Разобрать рабочий стол..." VerticalAlignment="Center"/>
+            </Button>
+
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnLaunchpadClick">
+                <DockPanel>
+                    <TextBlock x:Name="HotkeyHintText" DockPanel.Dock="Right" Text="Alt + ~" Foreground="#78FFFFFF" FontSize="11" VerticalAlignment="Center"/>
+                    <TextBlock Text="🚀  Режим Launchpad" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Button>
+
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnToggleVisibilityClick">
+                <TextBlock x:Name="VisibilityLabel" Text="👁  Скрыть плитки" VerticalAlignment="Center"/>
+            </Button>
+
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnAlignGridClick">
+                <TextBlock Text="⊞  Выровнять по сетке" VerticalAlignment="Center"/>
+            </Button>
+
+            <Border Height="1" Background="#1CFFFFFF" Margin="8,4"/>
+
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnToggleSnapClick">
+                <DockPanel>
+                    <TextBlock x:Name="SnapCheck" DockPanel.Dock="Right" Text="✓" Foreground="#5AAFFF" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="Привязка к сетке" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Button>
+
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnToggleLockClick">
+                <DockPanel>
+                    <TextBlock x:Name="LockCheck" DockPanel.Dock="Right" Text="✓" Foreground="#5AAFFF" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="Закрепить позиции" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Button>
+
+            <Button Style="{StaticResource TrayItemBtn}" Click="OnToggleAutostartClick">
+                <DockPanel>
+                    <TextBlock x:Name="AutostartCheck" DockPanel.Dock="Right" Text="✓" Foreground="#5AAFFF" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="Автозапуск с Windows" VerticalAlignment="Center"/>
+                </DockPanel>
+            </Button>
+
+            <Border Height="1" Background="#1CFFFFFF" Margin="8,4"/>
+
+            <Button Style="{StaticResource TrayItemBtn}" Foreground="#FF6B63" Click="OnExitClick">
+                <TextBlock Text="Выход" VerticalAlignment="Center"/>
+            </Button>
+        </StackPanel>
+    </Border>
+</Window>

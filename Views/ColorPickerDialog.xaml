@@ -1,0 +1,143 @@
+<Window x:Class="DeskFolders.Views.ColorPickerDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="316"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        Topmost="True">
+    <Border Margin="18"
+            Background="#F41C1C22"
+            BorderBrush="#40FFFFFF"
+            BorderThickness="1"
+            CornerRadius="18"
+            Padding="16">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="16" ShadowDepth="4" Opacity="0.5" Color="Black"/>
+        </Border.Effect>
+
+        <StackPanel>
+            <DockPanel Margin="0,0,0,12">
+                <Border x:Name="PreviewTile"
+                        DockPanel.Dock="Right"
+                        Width="34"
+                        Height="34"
+                        CornerRadius="9"
+                        BorderThickness="1"/>
+                <TextBlock Text="Выбор цвета плитки"
+                           Foreground="#F5F5F7"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <!-- Квадрат Насыщенность / Яркость -->
+            <Border CornerRadius="10" ClipToBounds="True" Height="156" Margin="0,0,0,10">
+                <Grid x:Name="SvCanvas"
+                      Cursor="Cross"
+                      MouseLeftButtonDown="OnSvMouseDown"
+                      MouseMove="OnSvMouseMove"
+                      MouseLeftButtonUp="OnSvMouseUp">
+                    <Rectangle x:Name="HueBackdrop" Fill="#FF0080FF"/>
+                    <Rectangle>
+                        <Rectangle.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                                <GradientStop Color="#00FFFFFF" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <Rectangle>
+                        <Rectangle.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#00000000" Offset="0"/>
+                                <GradientStop Color="#FF000000" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <Canvas IsHitTestVisible="False">
+                        <Ellipse x:Name="SvThumb"
+                                 Width="14"
+                                 Height="14"
+                                 Stroke="White"
+                                 StrokeThickness="2"
+                                 Fill="Transparent"/>
+                    </Canvas>
+                </Grid>
+            </Border>
+
+            <!-- Полоса оттенка (Hue) -->
+            <Border CornerRadius="6" ClipToBounds="True" Height="16" Margin="0,0,0,12">
+                <Grid x:Name="HueBar"
+                      Cursor="Hand"
+                      MouseLeftButtonDown="OnHueMouseDown"
+                      MouseMove="OnHueMouseMove"
+                      MouseLeftButtonUp="OnHueMouseUp">
+                    <Rectangle>
+                        <Rectangle.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFFF0000" Offset="0.00"/>
+                                <GradientStop Color="#FFFFFF00" Offset="0.17"/>
+                                <GradientStop Color="#FF00FF00" Offset="0.33"/>
+                                <GradientStop Color="#FF00FFFF" Offset="0.50"/>
+                                <GradientStop Color="#FF0000FF" Offset="0.67"/>
+                                <GradientStop Color="#FFFF00FF" Offset="0.83"/>
+                                <GradientStop Color="#FFFF0000" Offset="1.00"/>
+                            </LinearGradientBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <Canvas IsHitTestVisible="False">
+                        <Border x:Name="HueThumb"
+                                Width="6"
+                                Height="16"
+                                CornerRadius="2"
+                                Background="White"
+                                BorderBrush="#88000000"
+                                BorderThickness="1"/>
+                    </Canvas>
+                </Grid>
+            </Border>
+
+            <!-- HEX-ввод и кнопки -->
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Отмена"
+                            Width="68"
+                            Height="30"
+                            Margin="0,0,6,0"
+                            Click="OnCancelClick"
+                            Background="#2C2C34"
+                            Foreground="#E5E5EA"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                    <Button Content="ОК"
+                            Width="62"
+                            Height="30"
+                            Click="OnOkClick"
+                            Background="#0A84FF"
+                            Foreground="White"
+                            FontWeight="SemiBold"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </StackPanel>
+
+                <TextBox x:Name="HexBox"
+                         Width="96"
+                         Height="30"
+                         Padding="8,5"
+                         HorizontalAlignment="Left"
+                         FontSize="12.5"
+                         Foreground="White"
+                         CaretBrush="White"
+                         Background="#2C2C34"
+                         BorderBrush="#42FFFFFF"
+                         BorderThickness="1"
+                         TextChanged="OnHexTextChanged"/>
+            </DockPanel>
+        </StackPanel>
+    </Border>
+</Window>

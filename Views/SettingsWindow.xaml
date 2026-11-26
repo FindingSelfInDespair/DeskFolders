@@ -1,0 +1,768 @@
+<Window x:Class="DeskFolders.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DeskFolders — Настройки"
+        Width="876"
+        Height="636"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True">
+    <Window.Resources>
+        <!-- Тонкий современный скроллбар -->
+        <Style x:Key="ModernScrollBarStyle" TargetType="ScrollBar">
+            <Setter Property="Width" Value="7"/>
+            <Setter Property="MinWidth" Value="7"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent" Margin="2,4,0,4">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="Pill" Width="5" CornerRadius="2.5" Background="#40FFFFFF" HorizontalAlignment="Center"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Pill" Property="Background" Value="#7AFFFFFF"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="True">
+                                                        <Setter TargetName="Pill" Property="Background" Value="#AAFFFFFF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Левая навигация с акцентным индикатором -->
+        <Style x:Key="NavButtonStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#A8A8B2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="10,9"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="AccentBar" Width="3" Height="16" CornerRadius="1.5" Background="#0A84FF" Margin="0,0,10,0" Visibility="Hidden"/>
+                                <ContentPresenter Grid.Column="1" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#16FFFFFF"/>
+                                <Setter Property="Foreground" Value="#F5F5F7"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#24FFFFFF"/>
+                                <Setter TargetName="AccentBar" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Сегментированные кнопки-пилюли (вместо точек RadioButton) -->
+        <Style x:Key="SegmentedBtnStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#B0B0B8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="11,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Bd" Background="Transparent" CornerRadius="7" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#14FFFFFF"/>
+                                <Setter Property="Foreground" Value="#F2F2F7"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#0A84FF"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SegmentContainerStyle" TargetType="Border">
+            <Setter Property="Background" Value="#1C000000"/>
+            <Setter Property="BorderBrush" Value="#1AFFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Setter Property="Padding" Value="3"/>
+        </Style>
+
+        <!-- Современный слайдер -->
+        <Style x:Key="ModernSliderStyle" TargetType="Slider">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="IsMoveToPointEnabled" Value="True"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid VerticalAlignment="Center">
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" IsTabStop="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="5" CornerRadius="2.5" Background="#0A84FF" VerticalAlignment="Center"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="Knob"
+                                                        Width="16" Height="16"
+                                                        CornerRadius="8"
+                                                        Background="White"
+                                                        BorderBrush="#40000000"
+                                                        BorderThickness="1"
+                                                        RenderTransformOrigin="0.5,0.5">
+                                                    <Border.RenderTransform>
+                                                        <ScaleTransform x:Name="KnobScale" ScaleX="1" ScaleY="1"/>
+                                                    </Border.RenderTransform>
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.35" Color="Black"/>
+                                                    </Border.Effect>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Trigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetName="KnobScale" Storyboard.TargetProperty="ScaleX" To="1.16" Duration="0:0:0.10"/>
+                                                                    <DoubleAnimation Storyboard.TargetName="KnobScale" Storyboard.TargetProperty="ScaleY" To="1.16" Duration="0:0:0.10"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.EnterActions>
+                                                        <Trigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetName="KnobScale" Storyboard.TargetProperty="ScaleX" To="1.0" Duration="0:0:0.12"/>
+                                                                    <DoubleAnimation Storyboard.TargetName="KnobScale" Storyboard.TargetProperty="ScaleY" To="1.0" Duration="0:0:0.12"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.ExitActions>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" IsTabStop="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Height="5" CornerRadius="2.5" Background="#28FFFFFF" VerticalAlignment="Center"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Кнопки -->
+        <Style x:Key="DarkBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#24FFFFFF"/>
+            <Setter Property="Foreground" Value="#F2F2F7"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,7"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#34FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#42FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AccentBtnStyle" TargetType="Button" BasedOn="{StaticResource DarkBtnStyle}">
+            <Setter Property="Background" Value="#0A84FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="9" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#2492FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#0070DF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Анимированный iOS-тумблер -->
+        <Style x:Key="DarkToggleStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#F2F2F7"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <DockPanel Background="Transparent">
+                            <Border x:Name="Track" DockPanel.Dock="Right" Width="42" Height="24" CornerRadius="12" Background="#36FFFFFF" VerticalAlignment="Center">
+                                <Border x:Name="Knob" Width="18" Height="18" CornerRadius="9" Background="White" HorizontalAlignment="Left" Margin="3,0">
+                                    <Border.RenderTransform>
+                                        <TranslateTransform x:Name="KnobX" X="0"/>
+                                    </Border.RenderTransform>
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3" Color="Black"/>
+                                    </Border.Effect>
+                                </Border>
+                            </Border>
+                            <ContentPresenter VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        </DockPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="#0A84FF"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="KnobX" Storyboard.TargetProperty="X" To="18" Duration="0:0:0.14">
+                                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="KnobX" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.14">
+                                                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#F2F2F7"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" ClickMode="Press">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="Bd" Background="#22FFFFFF" BorderBrush="#2AFFFFFF" BorderThickness="1" CornerRadius="7" Padding="9,4">
+                                            <DockPanel>
+                                                <TextBlock DockPanel.Dock="Right" Text="▾" Foreground="#98989F" FontSize="10" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                <ContentPresenter/>
+                                            </DockPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Bd" Property="Background" Value="#30FFFFFF"/></Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter IsHitTestVisible="False" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Margin="9,4,22,4" TextElement.Foreground="#F2F2F7" VerticalAlignment="Center"/>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Fade">
+                                <Border Background="#F41D1D22" BorderBrush="#38FFFFFF" BorderThickness="1" CornerRadius="9" Padding="3" Margin="0,3,0,0" MinWidth="{TemplateBinding ActualWidth}">
+                                    <StackPanel IsItemsHost="True"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground" Value="#F2F2F7"/>
+                        <Setter Property="Padding" Value="8,5"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="5" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border>
+                                    <ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Bd" Property="Background" Value="#2CFFFFFF"/></Trigger></ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="#11FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#1DFFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="16,14"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+
+        <Style x:Key="KbdBadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="#24FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#30FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Border x:Name="ShellBorder"
+            Margin="28"
+            Background="#F517171B"
+            BorderBrush="#36FFFFFF"
+            BorderThickness="1"
+            CornerRadius="20"
+            ClipToBounds="True"
+            RenderTransformOrigin="0.5,0.5">
+        <Border.RenderTransform>
+            <ScaleTransform x:Name="ShellScale" ScaleX="0.95" ScaleY="0.95"/>
+        </Border.RenderTransform>
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="16" ShadowDepth="3" Opacity="0.40" Color="Black"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="228"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Левая панель навигации -->
+            <Border Grid.Column="0" Background="#0EFFFFFF" BorderBrush="#1AFFFFFF" BorderThickness="0,0,1,0" Padding="14,18">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,0,22" MouseLeftButtonDown="OnTitleDrag" Background="Transparent">
+                        <Image Source="pack://application:,,,/Assets/app.ico" Width="28" Height="28" Margin="0,0,10,0"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="DeskFolders" Foreground="White" FontSize="15.5" FontWeight="SemiBold"/>
+                            <TextBlock Text="Виджет-папки • v1.0" Foreground="#8E8E93" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
+                        <Button Content="✨ Разобрать рабочий стол" Style="{StaticResource DarkBtnStyle}" Click="OnOrganizeDesktopClick" Margin="0,0,0,8"/>
+                        <Button Content="Выровнять по сетке" Style="{StaticResource DarkBtnStyle}" Click="OnAlignGridClick" Margin="0,0,0,8"/>
+                        <Button Content="Открыть Launchpad" Style="{StaticResource DarkBtnStyle}" Click="OnTestLaunchpadClick"/>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <RadioButton x:Name="NavFolders" Content="📁  Папки" Style="{StaticResource NavButtonStyle}" IsChecked="True" Checked="OnNavChanged"/>
+                        <RadioButton x:Name="NavAppearance" Content="🎨  Внешний вид" Style="{StaticResource NavButtonStyle}" Checked="OnNavChanged"/>
+                        <RadioButton x:Name="NavBehavior" Content="⚡  Управление" Style="{StaticResource NavButtonStyle}" Checked="OnNavChanged"/>
+                        <RadioButton x:Name="NavAbout" Content="ℹ  О программе" Style="{StaticResource NavButtonStyle}" Checked="OnNavChanged"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Правая рабочая область -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="54"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Верхняя полоса -->
+                <DockPanel Grid.Row="0" Background="Transparent" MouseLeftButtonDown="OnTitleDrag" Margin="24,0,18,0">
+                    <Button DockPanel.Dock="Right"
+                            Content="✕"
+                            Width="30" Height="30"
+                            Click="OnCloseClick"
+                            Style="{StaticResource DarkBtnStyle}"
+                            Background="Transparent"
+                            Padding="0"
+                            FontSize="13"
+                            Foreground="#98989F"
+                            VerticalAlignment="Center"/>
+                    <TextBlock x:Name="SectionTitle"
+                               Text="Папки на рабочем столе"
+                               Foreground="#F5F5F7"
+                               FontSize="17"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                </DockPanel>
+
+                <!-- Контейнер вкладок с анимацией перехода -->
+                <Grid x:Name="ContentStage" Grid.Row="1" RenderTransformOrigin="0.5,0.5">
+                    <Grid.RenderTransform>
+                        <TranslateTransform x:Name="StageSlide" Y="0"/>
+                    </Grid.RenderTransform>
+
+                    <!-- Вкладка 1: Папки -->
+                    <Grid x:Name="TabFolders" Margin="24,2,20,20">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <DockPanel Grid.Row="0" Margin="0,0,4,14">
+                            <Button DockPanel.Dock="Right"
+                                    Content="+ Добавить папку"
+                                    Style="{StaticResource AccentBtnStyle}"
+                                    Padding="14,8"
+                                    VerticalAlignment="Center"
+                                    Click="OnAddFolderClick"/>
+                            <TextBlock Text="Настраивайте цвет, обложку и путь каждой плитки рабочего стола."
+                                       Foreground="#98989F"
+                                       FontSize="12.5"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,16,0"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+                            <ScrollViewer.Resources>
+                                <Style TargetType="ScrollBar" BasedOn="{StaticResource ModernScrollBarStyle}"/>
+                            </ScrollViewer.Resources>
+                            <ItemsControl x:Name="FoldersList">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource CardBorderStyle}" Padding="14,12">
+                                            <StackPanel>
+                                                <DockPanel>
+                                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button Content="Цвет" Style="{StaticResource DarkBtnStyle}" Tag="{Binding}" Click="OnPickTileColorClick" Margin="0,0,6,0" Padding="11,6"/>
+                                                        <Button Content="Обложка" Style="{StaticResource DarkBtnStyle}" Tag="{Binding}" Click="OnPickTileCoverClick" Margin="0,0,6,0" Padding="11,6"/>
+                                                        <Button Content="✕" ToolTip="Удалить плитку с рабочего стола" Style="{StaticResource DarkBtnStyle}" Foreground="#FF6B63" Tag="{Binding}" Click="OnRemoveTileClick" Width="30" Padding="0,6"/>
+                                                    </StackPanel>
+
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Border Width="44" Height="44" CornerRadius="12" Background="{Binding SwatchBackground}" BorderBrush="{Binding SwatchBorder}" BorderThickness="1" Padding="5" Margin="0,0,12,0">
+                                                            <Grid>
+                                                                <Image Source="{Binding CustomCover}" Visibility="{Binding CoverImageVisibility}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                <UniformGrid Rows="2" Columns="2" Visibility="{Binding MiniGridVisibility}">
+                                                                    <Image Source="{Binding Mini0}" Margin="1" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                    <Image Source="{Binding Mini1}" Margin="1" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                    <Image Source="{Binding Mini2}" Margin="1" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                    <Image Source="{Binding Mini3}" Margin="1" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                                </UniformGrid>
+                                                                <TextBlock Text="{Binding InitialLetter}" Visibility="{Binding FallbackLetterVisibility}" Foreground="White" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Border>
+                                                        <StackPanel VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Name}" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding FolderPath}" Foreground="#8E8E93" FontSize="11.5" TextTrimming="CharacterEllipsis" MaxWidth="250" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </DockPanel>
+
+                                                <StackPanel Orientation="Horizontal" Margin="52,8,0,0">
+                                                    <Button Content="Переименовать" Style="{StaticResource DarkBtnStyle}" Tag="{Binding}" Click="OnRenameTileClick" Margin="0,0,6,0" Padding="10,4" FontSize="11.5"/>
+                                                    <Button Content="Сменить путь" Style="{StaticResource DarkBtnStyle}" Tag="{Binding}" Click="OnChangeTilePathClick" Margin="0,0,6,0" Padding="10,4" FontSize="11.5"/>
+                                                    <Button Content="Сбросить обложку" Visibility="{Binding HasCustomCoverVisibility}" Style="{StaticResource DarkBtnStyle}" Tag="{Binding}" Click="OnResetTileCoverClick" Margin="0,0,6,0" Padding="10,4" FontSize="11.5"/>
+                                                    <Button Content="{Binding HiddenCountLabel}" Visibility="{Binding HasHiddenVisibility}" Style="{StaticResource DarkBtnStyle}" Foreground="#5AAFFF" Tag="{Binding}" Click="OnRestoreTileHiddenClick" Padding="10,4" FontSize="11.5"/>
+                                                </StackPanel>
+                                                <DockPanel Margin="56,8,0,0">
+                                                    <ComboBox DockPanel.Dock="Left" Width="165" Style="{StaticResource DarkComboBoxStyle}" ItemsSource="{Binding DataContext.CategoryChoices, RelativeSource={RelativeSource AncestorType=Window}}" DisplayMemberPath="Label" SelectedValuePath="Category" SelectedValue="{Binding Category, Mode=TwoWay}" Tag="{Binding}" SelectionChanged="OnTileCategoryChanged" Margin="0,0,8,0"/>
+                                                    <TextBox Text="{Binding CustomKeywords, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Tag="{Binding}" ToolTip="Свои ключевые слова через запятую (например: roblox, faceit)" Background="#1C000000" BorderBrush="#26FFFFFF" BorderThickness="1" Foreground="#E5E5EA" CaretBrush="White" FontSize="11.5" Padding="8,4" VerticalContentAlignment="Center" LostFocus="OnTileKeywordsLostFocus"/>
+                                                </DockPanel>
+                                                <StackPanel Visibility="Collapsed">
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- Вкладка 2: Внешний вид -->
+                    <ScrollViewer x:Name="TabAppearance" Margin="24,2,20,20" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+                        <ScrollViewer.Resources>
+                            <Style TargetType="ScrollBar" BasedOn="{StaticResource ModernScrollBarStyle}"/>
+                        </ScrollViewer.Resources>
+                        <StackPanel>
+                            <!-- Живое превью на фоне «обоев» -->
+                            <Border Style="{StaticResource CardBorderStyle}" Padding="16">
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Right" CornerRadius="14" Padding="24,14" HorizontalAlignment="Right">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#273D5C" Offset="0"/>
+                                                <GradientStop Color="#3B2B54" Offset="0.5"/>
+                                                <GradientStop Color="#1F3B36" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <Border x:Name="LivePreviewTile" Width="80" Height="80" CornerRadius="20" BorderThickness="1" Padding="9">
+                                                <UniformGrid x:Name="LivePreviewGrid" Rows="2" Columns="2">
+                                                    <Border Margin="2" CornerRadius="5" Background="#5AAFFF"/>
+                                                    <Border Margin="2" CornerRadius="5" Background="#6EDC8C"/>
+                                                    <Border Margin="2" CornerRadius="5" Background="#FFBE55"/>
+                                                    <Border Margin="2" CornerRadius="5" Background="#F06E96"/>
+                                                </UniformGrid>
+                                            </Border>
+                                            <TextBlock x:Name="LivePreviewLabel" Text="Игры" Foreground="White" FontSize="11.5" FontWeight="Medium" HorizontalAlignment="Center" Margin="0,5,0,0">
+                                                <TextBlock.Effect>
+                                                    <DropShadowEffect BlurRadius="3" ShadowDepth="1" Opacity="0.85" Color="Black"/>
+                                                </TextBlock.Effect>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <StackPanel VerticalAlignment="Center" Margin="0,0,18,0">
+                                        <TextBlock Text="Живой предпросмотр" Foreground="White" FontSize="14.5" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Двигайте ползунки и переключатели — все плитки на рабочем столе обновляются в реальном времени." Foreground="#98989F" FontSize="12" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+
+                            <!-- Слайдеры стекла -->
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,4">
+                                        <TextBlock x:Name="OpacityValueText" DockPanel.Dock="Right" Foreground="#5AAFFF" FontSize="12.5" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Непрозрачность стекла" Foreground="#F2F2F7" FontSize="13"/>
+                                    </DockPanel>
+                                    <Slider x:Name="OpacitySlider" Style="{StaticResource ModernSliderStyle}" Minimum="30" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="OnOpacityChanged" Margin="0,0,0,12"/>
+
+                                    <DockPanel Margin="0,0,0,4">
+                                        <TextBlock x:Name="RadiusValueText" DockPanel.Dock="Right" Foreground="#5AAFFF" FontSize="12.5" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Скругление углов" Foreground="#F2F2F7" FontSize="13"/>
+                                    </DockPanel>
+                                    <Slider x:Name="RadiusSlider" Style="{StaticResource ModernSliderStyle}" Minimum="4" Maximum="32" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="OnRadiusChanged"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Плитки -->
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,12">
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource SegmentContainerStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <RadioButton x:Name="SizeCompactRb" Content="76 px" GroupName="TileSz" Style="{StaticResource SegmentedBtnStyle}" Checked="OnTileSizeRadioChanged"/>
+                                                <RadioButton x:Name="SizeStdRb" Content="88 px" GroupName="TileSz" Style="{StaticResource SegmentedBtnStyle}" Checked="OnTileSizeRadioChanged"/>
+                                                <RadioButton x:Name="SizeLargeRb" Content="104 px" GroupName="TileSz" Style="{StaticResource SegmentedBtnStyle}" Checked="OnTileSizeRadioChanged"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Text="Размер плиток" Foreground="#F2F2F7" FontSize="13" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <DockPanel Margin="0,0,0,12">
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource SegmentContainerStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <RadioButton x:Name="Grid2Rb" Content="2×2" GroupName="GridSz" Style="{StaticResource SegmentedBtnStyle}" Checked="OnGridRadioChanged"/>
+                                                <RadioButton x:Name="Grid3Rb" Content="3×3" GroupName="GridSz" Style="{StaticResource SegmentedBtnStyle}" Checked="OnGridRadioChanged"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Text="Сетка мини-иконок" Foreground="#F2F2F7" FontSize="13" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <CheckBox x:Name="ShowTileLabelsChk" Content="Показывать названия под плитками" Style="{StaticResource DarkToggleStyle}" Checked="OnShowTileLabelsChanged" Unchecked="OnShowTileLabelsChanged"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Открытая папка -->
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,12">
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource SegmentContainerStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <RadioButton x:Name="Col4Rb" Content="4" GroupName="Cols" Style="{StaticResource SegmentedBtnStyle}" Checked="OnColumnsRadioChanged"/>
+                                                <RadioButton x:Name="Col5Rb" Content="5" GroupName="Cols" Style="{StaticResource SegmentedBtnStyle}" Checked="OnColumnsRadioChanged"/>
+                                                <RadioButton x:Name="Col6Rb" Content="6" GroupName="Cols" Style="{StaticResource SegmentedBtnStyle}" Checked="OnColumnsRadioChanged"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Text="Колонок в окне папки" Foreground="#F2F2F7" FontSize="13" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <DockPanel Margin="0,0,0,12">
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource SegmentContainerStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <RadioButton x:Name="ViewScrollRb" Content="Скролл" GroupName="ViewMode" Style="{StaticResource SegmentedBtnStyle}" Checked="OnPaginationRadioChanged"/>
+                                                <RadioButton x:Name="ViewPagesRb" Content="Страницы" GroupName="ViewMode" Style="{StaticResource SegmentedBtnStyle}" Checked="OnPaginationRadioChanged"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Text="Прокрутка внутри папки" Foreground="#F2F2F7" FontSize="13" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Right" Style="{StaticResource SegmentContainerStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <RadioButton x:Name="LblTruncRb" Content="Короткие" GroupName="PopLbl" Style="{StaticResource SegmentedBtnStyle}" Checked="OnPopupLabelRadioChanged"/>
+                                                <RadioButton x:Name="LblFullRb" Content="Полные" GroupName="PopLbl" Style="{StaticResource SegmentedBtnStyle}" Checked="OnPopupLabelRadioChanged"/>
+                                                <RadioButton x:Name="LblHideRb" Content="Без имён" GroupName="PopLbl" Style="{StaticResource SegmentedBtnStyle}" Checked="OnPopupLabelRadioChanged"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <TextBlock Text="Названия иконок в папке" Foreground="#F2F2F7" FontSize="13" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Вкладка 3: Управление -->
+                    <ScrollViewer x:Name="TabBehavior" Margin="24,2,20,20" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+                        <ScrollViewer.Resources>
+                            <Style TargetType="ScrollBar" BasedOn="{StaticResource ModernScrollBarStyle}"/>
+                        </ScrollViewer.Resources>
+                        <StackPanel>
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Горячая клавиша Launchpad" Foreground="White" FontSize="13.5" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                    <Border Style="{StaticResource SegmentContainerStyle}" HorizontalAlignment="Left">
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton x:Name="HkAltTildeRb" Content="Alt + ~" GroupName="Hotkeys" Style="{StaticResource SegmentedBtnStyle}" Checked="OnHotkeyRadioChanged"/>
+                                            <RadioButton x:Name="HkCtrlSpaceRb" Content="Ctrl + Space" GroupName="Hotkeys" Style="{StaticResource SegmentedBtnStyle}" Checked="OnHotkeyRadioChanged"/>
+                                            <RadioButton x:Name="HkCtrlShiftSpaceRb" Content="Ctrl + Shift + Space" GroupName="Hotkeys" Style="{StaticResource SegmentedBtnStyle}" Checked="OnHotkeyRadioChanged"/>
+                                            <RadioButton x:Name="HkAltQRb" Content="Alt + Q" GroupName="Hotkeys" Style="{StaticResource SegmentedBtnStyle}" Checked="OnHotkeyRadioChanged"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <TextBlock x:Name="HotkeyStatusText" Text="Вызывает все папки и Spotlight-поиск поверх любых окон." Foreground="#8E8E93" FontSize="12" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel>
+                                    <CheckBox x:Name="SnapChk" Content="Привязка к ровной сетке рабочего стола" Style="{StaticResource DarkToggleStyle}" Margin="0,0,0,14" Checked="OnSnapChanged" Unchecked="OnSnapChanged"/>
+                                    <CheckBox x:Name="LockChk" Content="Закрепить позиции плиток (защита от случайного сдвига)" Style="{StaticResource DarkToggleStyle}" Margin="0,0,0,14" Checked="OnLockChanged" Unchecked="OnLockChanged"/>
+                                    <DockPanel Margin="0,0,0,14">
+                                        <Button DockPanel.Dock="Right" Content="▶ Тест" Style="{StaticResource DarkBtnStyle}" Padding="10,4" FontSize="11.5" Margin="10,0,0,0" Click="OnTestSoundClick"/>
+                                        <CheckBox x:Name="SoundsChk" Content="Тактильные микро-звуки интерфейса" Style="{StaticResource DarkToggleStyle}" Checked="OnSoundsChanged" Unchecked="OnSoundsChanged"/>
+                                    </DockPanel>
+                                    <CheckBox x:Name="AutoOrganizeChk" Content="Автоматически разбирать новые ярлыки с Рабочего стола" Style="{StaticResource DarkToggleStyle}" Margin="0,0,0,14" Checked="OnAutoOrganizeChanged" Unchecked="OnAutoOrganizeChanged"/>
+                                    <CheckBox x:Name="AutostartChk" Content="Запускать DeskFolders вместе с Windows" Style="{StaticResource DarkToggleStyle}" Checked="OnAutostartChanged" Unchecked="OnAutostartChanged"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="При удалении элемента из папки" Foreground="White" FontSize="13.5" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                    <Border Style="{StaticResource SegmentContainerStyle}" HorizontalAlignment="Left">
+                                        <StackPanel Orientation="Horizontal">
+                                            <RadioButton x:Name="DelRecycleRb" Content="Перемещать в Корзину" GroupName="DelMode" Style="{StaticResource SegmentedBtnStyle}" Checked="OnDeleteRadioChanged"/>
+                                            <RadioButton x:Name="DelHideRb" Content="Только скрывать из плитки" GroupName="DelMode" Style="{StaticResource SegmentedBtnStyle}" Checked="OnDeleteRadioChanged"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- Вкладка 4: О программе -->
+                    <ScrollViewer x:Name="TabAbout" Margin="24,2,20,20" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+                        <ScrollViewer.Resources>
+                            <Style TargetType="ScrollBar" BasedOn="{StaticResource ModernScrollBarStyle}"/>
+                        </ScrollViewer.Resources>
+                        <StackPanel>
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <DockPanel>
+                                    <Button DockPanel.Dock="Right" Content="Открыть папку настроек" Style="{StaticResource DarkBtnStyle}" VerticalAlignment="Center" Click="OnOpenAppFolderClick"/>
+                                    <StackPanel>
+                                        <TextBlock Text="DeskFolders — виджет-папки для Windows 10/11" Foreground="White" FontSize="14.5" FontWeight="SemiBold"/>
+                                        <TextBlock Text="C# (.NET 8) • WPF • Win32 Shell API • 0% CPU в простое" Foreground="#98989F" FontSize="12" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource CardBorderStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="Подсказки по управлению" Foreground="White" FontSize="13.5" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+                                    <DockPanel Margin="0,0,0,10">
+                                        <Border Style="{StaticResource KbdBadgeStyle}"><TextBlock Text="Alt + ~" Foreground="White" FontSize="11.5" FontWeight="SemiBold"/></Border>
+                                        <TextBlock Text="Режим Launchpad + мгновенный поиск по всем вашим папкам" Foreground="#D1D1D6" FontSize="12.5" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <DockPanel Margin="0,0,0,10">
+                                        <Border Style="{StaticResource KbdBadgeStyle}"><TextBlock Text="Клик по заголовку" Foreground="White" FontSize="11.5" FontWeight="SemiBold"/></Border>
+                                        <TextBlock Text="Быстрое переименование папки прямо внутри открытого окна" Foreground="#D1D1D6" FontSize="12.5" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <DockPanel Margin="0,0,0,10">
+                                        <Border Style="{StaticResource KbdBadgeStyle}"><TextBlock Text="Зажатие (0.3 сек)" Foreground="White" FontSize="11.5" FontWeight="SemiBold"/></Border>
+                                        <TextBlock Text="Смена порядка иконок, удаление в корзину или вынос на рабочий стол" Foreground="#D1D1D6" FontSize="12.5" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <DockPanel Margin="0,0,0,10">
+                                        <Border Style="{StaticResource KbdBadgeStyle}"><TextBlock Text="Ctrl + Клик" Foreground="White" FontSize="11.5" FontWeight="SemiBold"/></Border>
+                                        <TextBlock Text="Запуск приложения без закрытия всплывающей папки" Foreground="#D1D1D6" FontSize="12.5" VerticalAlignment="Center"/>
+                                    </DockPanel>
+
+                                    <DockPanel>
+                                        <Border Style="{StaticResource KbdBadgeStyle}"><TextBlock Text="↑ ↓ ← → / Enter" Foreground="White" FontSize="11.5" FontWeight="SemiBold"/></Border>
+                                        <TextBlock Text="Навигация по иконкам и запуск с клавиатуры" Foreground="#D1D1D6" FontSize="12.5" VerticalAlignment="Center"/>
+                                    </DockPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>
