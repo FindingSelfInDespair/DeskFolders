@@ -18,7 +18,8 @@
   <!-- Скриншоты: закинь screen1.png и screen2.png в папку docs/ или вставь через Ctrl+V в редакторе GitHub -->
   <p>
     <img src="docs/screen1.png" width="760" alt="Рабочий стол и папки" /><br/>
-    <img src="docs/screen2.png" width="760" alt="Launchpad и настройки" />
+    <img src="docs/screen2.png" width="760" alt="Настройки" /><br/>
+    <img src="docs/screen3.png" width="760" alt="Launchpad" />
   </p>
 </div>
 
